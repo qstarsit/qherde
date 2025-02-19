@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css')}}">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/leaflet/leaflet.css')}}" />
+    <script src="{{ url_for('static', path='js/leaflet/leaflet.js') }}"></script>
+
+    <!-- Leaflet plugins -->
+    <script src="{{ url_for('static', path='js/leaflet.rotatedMarker.js') }}"></script>
+
+    <!-- JQuery because I'm old -->
+    <script src="{{ url_for('static', path='js/jquery.js') }}"></script>
+
+    <!-- Own JS libs -->
+    <script src="{{ url_for('static', path='js/fetchAircraftService.js') }}"></script>
+
+    <title>✈ Live Flights</title>
+</head>
+
+<body>
+    <main>
+        <h1>{{title}}</h1>
+
+        <div id="map"></div>
+    </main>
+
+    <!-- Initialize and show the map, using OpenStreetMap as provider -->
+    <script>
+        var map = L.map('map').setView([51.5005, -0.1145], 9);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a target="_blank" href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a target="_blank" href="https://www.qstars.nl">Qstars IT</a>'
+        }).addTo(map);
+
+
+    </script>
+
+    <!-- Get aircraft data and show them as markers on the map. -->
+    <script>
+        const airlinerIcon = L.icon({
+            iconUrl: "{{ url_for('static', path='img/airliner.svg') }}",
+            iconSize: [38, 95],
+            iconAnchor: [22, 94],
+            popupAnchor: [5, -76],
+        });
+
+        // Create a LayerGroup so it can be cleared when refreshing the data
+        const airlinerLayerGroup = L.layerGroup().addTo(map);
+
+        // Load all aircraft data for the first render
+        fetchAndSetAircrafts(airlinerLayerGroup)
+
+        // Fetch all flights every n seconds
+        setInterval(() => fetchAndSetAircrafts(airlinerLayerGroup), 5000)
+
+
+
+    </script>
+</body>
+
+</html>
